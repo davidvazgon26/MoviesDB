@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# cuantas.js (API KEY)
+src/cuentas.js

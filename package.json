@@ -1,0 +1,19 @@
+{
+  "name": "moviesdb",
+  "version": "1.0.0",
+  "description": "Consumo de API REST con Javascript, manejo de Fetch, Axios con aplicación web",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidvazgon26/MoviesDB.git"
+  },
+  "author": "DAVG",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davidvazgon26/MoviesDB/issues"
+  },
+  "homepage": "https://github.com/davidvazgon26/MoviesDB#readme"
+}
