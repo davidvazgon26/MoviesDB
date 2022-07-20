@@ -15,9 +15,7 @@ window.addEventListener('DOMContentLoaded', navigator, false)
 window.addEventListener('hashchange', navigator, false)
 
 function navigator() {
-    console.log({
-        location
-    })
+    console.log(location)
 
     if (location.hash.startsWith('#trends')) {
         trendsPage();
@@ -31,7 +29,8 @@ function navigator() {
         homePage();
     }
 
-
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
     // location.hash = trends // asi puedes probarlo en la consola
 }
 
@@ -72,6 +71,13 @@ function categoriesPage() {
     genericSection.classList.remove('inactive');
     movieDetailSection.classList.add('inactive');
 
+    const [_,categoryData] = location.hash.split('='); // ['#category','id-name']
+    const [categoryId, categoryName] = categoryData.split('-');
+    const categoryName2 = decodeURI(categoryName)
+    headerCategoryTitle.innerHTML = categoryName2
+
+    console.log(categoryId)
+    getMoviesByCategory(categoryId);
 }
 
 function movieDetailsPage() {
