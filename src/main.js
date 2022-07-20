@@ -1,4 +1,4 @@
-
+// aca son los llamados a la API de Movies DB
 
 const api = axios.create({
     baseURL:'https://api.themoviedb.org/3/',
@@ -149,6 +149,32 @@ async function getMoviesByCategory(id){
     //     movieContainer.appendChild(movieImg);
     //     genericSection.appendChild(movieContainer);
     // });
+}
+
+async function getMoviesBySearch(query){
+
+    //Documentacion: https://developers.themoviedb.org/3/search/search-movies
+
+    const {data} = await api('search/movie', {
+        params: {
+            query: query,
+        },
+    })
+
+    const movies = data.results;
+    createMovies(movies, genericSection)
+  
+}
+
+
+async function getTrendingMovies(){
+
+    const {data} = await api('trending/movie/day')
+
+    const movies = data.results;
+
+    createMovies(movies, genericSection)
+
 }
 
 

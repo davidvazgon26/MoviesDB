@@ -1,3 +1,6 @@
+//Este archivo se utiliza para ordenar en un solo lugar todos los tag que sufren modificaciones conforme se utiliza la aplicacion.
+
+
 // Sections
 const headerSection = document.querySelector('#header');
 const trendingPreviewSection = document.querySelector('#trendingPreview');
