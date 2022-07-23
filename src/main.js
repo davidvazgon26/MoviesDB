@@ -167,13 +167,15 @@ async function getMoviesByCategory(id) {
         params: {
             with_genres: id,
         },
-    })
+    });
 
     const movies = data.results;
+    maxPage = data.total_pages;
+    console.log(maxPage)
 
 
     // No olvides el true para que se active el lazyLoader
-    createMovies(movies, genericSection, true)
+    createMovies(movies, genericSection, {lazyLoad: true})
 
     // Generacion automatica de elementos
     // genericSection.innerHTML = ''
@@ -194,23 +196,74 @@ async function getMoviesByCategory(id) {
     // });
 }
 
+function getPaginatedMoviesByCategory(id) {
+    return async function () {
+
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+    const scrollIsBotton = scrollTop + clientHeight >= scrollHeight - 25;
+    const pageIsNotMax = page < maxPage;
+
+    if (scrollIsBotton && pageIsNotMax) {
+      page++;
+      const { data } = await api('discover/movie', {
+        params: {
+            with_genres: id,
+            page,
+        },
+    })
+
+      const movies = data.results;
+
+      createMovies(movies, genericSection, { lazyLoad: true, clean: false });
+    }
+  };
+}
+
 async function getMoviesBySearch(query) {
 
     //Documentacion: https://developers.themoviedb.org/3/search/search-movies
 
-    const {
-        data
-    } = await api('search/movie', {
+    const { data } = await api('search/movie', {
         params: {
             query: query,
         },
     })
 
     const movies = data.results;
+    maxPage = data.total_pages;
+    console.log(maxPage)
+
     createMovies(movies, genericSection)
 
 }
 
+ function getPaginatedMoviesBySearch(query) {
+    console.log('entro a getPaginatedMoviesBySearch')
+    return async function () {
+      console.log('entro al closure de getPaginatedMoviesBySearch')
+      console.log(query)
+
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+    const scrollIsBotton = scrollTop + clientHeight >= scrollHeight - 25;
+    const pageIsNotMax = page < maxPage;
+
+    if (scrollIsBotton && pageIsNotMax) {
+      page++;
+      const { data } = await api("search/movie", {
+        params: {
+          query,
+          page,
+        },
+      });
+
+      const movies = data.results;
+
+      createMovies(movies, genericSection, { lazyLoad: true, clean: false });
+    }
+  };
+}
 
 async function getTrendingMovies() {
 
@@ -219,34 +272,42 @@ async function getTrendingMovies() {
     } = await api('trending/movie/day')
 
     const movies = data.results;
+    maxPage = data.total_pages
 
     createMovies(movies, genericSection, {lazyLoad: true, clean: true})
 
-    const btnLoad = document.createElement('button')
-    btnLoad.innerHTML = 'Cargar mas'
-    btnLoad.addEventListener('click', getPaginatedTrendingMovies)
-    genericSection.appendChild(btnLoad)
+    // const btnLoad = document.createElement('button')
+    // btnLoad.innerHTML = 'Cargar mas'
+    // btnLoad.addEventListener('click', getPaginatedTrendingMovies)
+    // genericSection.appendChild(btnLoad)
 
 }
 
-let page = 1;
 
 async function getPaginatedTrendingMovies(){
-    page++
-    const { data } = await api('trending/movie/day', {
-        params:{
-            page
-        },
-    });
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    
+    const scrollIsBotton = (scrollTop + clientHeight)>= (scrollHeight-25)
+    const pageIsNotMax = page<maxPage;
+    
+    if(scrollIsBotton && pageIsNotMax){
+        page++
+        const { data } = await api('trending/movie/day', {
+            params:{
+                page
+            },
+        });
+    
+        const movies = data.results;
+    
+        createMovies(movies, genericSection, {lazyLoad: true, clean: false})
 
-    const movies = data.results;
+    }
 
-    createMovies(movies, genericSection, {lazyLoad: true, clean: false})
-
-    const btnLoad = document.createElement('button')
-    btnLoad.innerHTML = 'Cargar mas'
-    btnLoad.addEventListener('click', getPaginatedTrendingMovies)
-    genericSection.appendChild(btnLoad)
+    // const btnLoad = document.createElement('button')
+    // btnLoad.innerHTML = 'Cargar mas'
+    // btnLoad.addEventListener('click', getPaginatedTrendingMovies)
+    // genericSection.appendChild(btnLoad)
 }
 
 

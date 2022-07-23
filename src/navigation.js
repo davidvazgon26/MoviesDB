@@ -1,8 +1,9 @@
 //Uso de location y hash navigation
-
 //aqui va la mayoria de la logica de la aplicacion
-
 //Los tag que se modifican vienen de nodes.js
+let maxPage;
+let page = 1;
+let infiniteScroll;
 
 //Boton de busqueda
 searchFormBtn.addEventListener('click', ()=>{
@@ -25,9 +26,16 @@ arrowBtn.addEventListener('click', ()=>{
 
 window.addEventListener('DOMContentLoaded', navigator, false)
 window.addEventListener('hashchange', navigator, false)
+window.addEventListener('scroll', infiniteScroll, false)
 
 function navigator() {
-    console.log(location)
+    // console.log(location)
+    console.log("Entro a Navigation")
+
+    if(infiniteScroll){
+        window.removeEventListener('scroll', infiniteScroll, {passive: false});
+        infiniteScroll = undefined;
+    }
 
     if (location.hash.startsWith('#trends')) {
         trendsPage();
@@ -44,6 +52,10 @@ function navigator() {
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
     // location.hash = trends // asi puedes probarlo en la consola
+
+    if(infiniteScroll){
+        window.addEventListener('scroll', infiniteScroll, {passive:false})
+    }
 }
 
 function homePage() {
@@ -90,6 +102,8 @@ function categoriesPage() {
 
     console.log(categoryId)
     getMoviesByCategory(categoryId);
+
+    infiniteScroll = getPaginatedMoviesByCategory(categoryId)
 }
 
 function movieDetailsPage() {
@@ -133,6 +147,8 @@ function searchPage() {
     // array ['#search','buscado']
     const[__,query] = location.hash.split('=')
     getMoviesBySearch(query);
+
+    infiniteScroll = getPaginatedMoviesBySearch(query)
 }
 
 function trendsPage() {
@@ -154,5 +170,7 @@ function trendsPage() {
     headerCategoryTitle.innerHTML = 'Tendencias'
 
     getTrendingMovies();
+
+    infiniteScroll = getPaginatedTrendingMovies
 }
 
