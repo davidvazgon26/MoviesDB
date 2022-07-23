@@ -23,9 +23,16 @@ const lazyLoader = new IntersectionObserver((entries) =>{
     })
 })
 
-function createMovies(movies, container, lazyLoad = false) {
-    container.innerHTML = '';
+function createMovies(movies, container, 
+    {
+        lazyLoad = false,
+        clean = true,
+    }={}
+    ) {
 
+    if(clean){
+        container.innerHTML = '';
+    }
     movies.forEach(movie => {
 
         // creando el contenedor
@@ -213,8 +220,33 @@ async function getTrendingMovies() {
 
     const movies = data.results;
 
-    createMovies(movies, genericSection)
+    createMovies(movies, genericSection, {lazyLoad: true, clean: true})
 
+    const btnLoad = document.createElement('button')
+    btnLoad.innerHTML = 'Cargar mas'
+    btnLoad.addEventListener('click', getPaginatedTrendingMovies)
+    genericSection.appendChild(btnLoad)
+
+}
+
+let page = 1;
+
+async function getPaginatedTrendingMovies(){
+    page++
+    const { data } = await api('trending/movie/day', {
+        params:{
+            page
+        },
+    });
+
+    const movies = data.results;
+
+    createMovies(movies, genericSection, {lazyLoad: true, clean: false})
+
+    const btnLoad = document.createElement('button')
+    btnLoad.innerHTML = 'Cargar mas'
+    btnLoad.addEventListener('click', getPaginatedTrendingMovies)
+    genericSection.appendChild(btnLoad)
 }
 
 
