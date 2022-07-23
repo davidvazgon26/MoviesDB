@@ -12,7 +12,18 @@ const api = axios.create({
 
 //Utils o Helpers
 
-function createMovies(movies, container) {
+
+// esta es la funcion que se encarga de insertar solo lo visible de los scroll
+const lazyLoader = new IntersectionObserver((entries) =>{
+    entries.forEach((entry)=>{
+       if(entry.isIntersecting){
+        const url = entry.target.getAttribute('data-img')
+        entry.target.setAttribute('src', url)
+       }
+    })
+})
+
+function createMovies(movies, container, lazyLoad = false) {
     container.innerHTML = '';
 
     movies.forEach(movie => {
@@ -27,8 +38,22 @@ function createMovies(movies, container) {
         const movieImg = document.createElement('img');
         movieImg.classList.add('movie-img');
         movieImg.setAttribute('alt', movie.title);
-        movieImg.setAttribute('src', 'https://image.tmdb.org/t/p/w300' + movie.poster_path);
+        movieImg.setAttribute(
+            lazyLoad? 'data-img': 'src', 'https://image.tmdb.org/t/p/w300' + movie.poster_path);
 
+        // se tiene que agregar esta linea para que el lazy loader este escuchando
+        if(lazyLoad){
+            lazyLoader.observe(movieImg)
+        }
+
+        // Esta parte del codigo es para cuando no cargan las imagenes agregamos una por defecto
+        movieImg.addEventListener('error', ()=> {
+            movieImg.setAttribute(
+                'src',
+                'https://static.platzi.com/static/images/error/img404.png'
+            )
+        })
+        
         movieContainer.appendChild(movieImg);
         container.appendChild(movieContainer);
     });
@@ -69,8 +94,8 @@ async function getTrendingMoviesPreview() {
     } = await api('trending/movie/day')
 
     const movies = data.results;
-
-    createMovies(movies, trendingMoviesPreviewList)
+    // tenemos que mandar true en los parametros de createMovies si queremos que funcione el lazyLoader
+    createMovies(movies, trendingMoviesPreviewList, true)
 
     // Generacion automatica de elementos
     // trendingMoviesPreviewList.innerHTML = ''
@@ -139,7 +164,9 @@ async function getMoviesByCategory(id) {
 
     const movies = data.results;
 
-    createMovies(movies, genericSection)
+
+    // No olvides el true para que se active el lazyLoader
+    createMovies(movies, genericSection, true)
 
     // Generacion automatica de elementos
     // genericSection.innerHTML = ''
