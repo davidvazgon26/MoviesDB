@@ -10,6 +10,31 @@ const api = axios.create({
     },
 });
 
+function likedMoviesList(){
+const item= JSON.parse(localStorage.getItem("liked_movies"));
+let movies;
+
+if(item){
+    movies  = item;
+}else{
+    movies={}
+}
+
+    return movies;
+}
+
+function likeMovie(movie){
+    const likedMovies = likedMoviesList();
+
+    if(likedMovies[movie.id]){
+        likedMovies[movie.id]=undefined;
+    }else{
+        likedMovies[movie.id]=movie;
+    }
+
+    localStorage.setItem('liked_movies',JSON.stringify(likedMovies))
+}
+
 //Utils o Helpers
 
 
@@ -33,25 +58,20 @@ function createMovies(movies, container,
     if(clean){
         container.innerHTML = '';
     }
-    movies.forEach(movie => {
 
+    movies.forEach(movie => {
         // creando el contenedor
         const movieContainer = document.createElement('div')
         movieContainer.classList.add('movie-container');
-        movieContainer.addEventListener('click', () => {
-            location.hash = '#movie=' + movie.id;
-        })
 
         const movieImg = document.createElement('img');
         movieImg.classList.add('movie-img');
         movieImg.setAttribute('alt', movie.title);
         movieImg.setAttribute(
             lazyLoad? 'data-img': 'src', 'https://image.tmdb.org/t/p/w300' + movie.poster_path);
-
-        // se tiene que agregar esta linea para que el lazy loader este escuchando
-        if(lazyLoad){
-            lazyLoader.observe(movieImg)
-        }
+        movieImg.addEventListener('click', () => {
+                location.hash = '#movie=' + movie.id;
+        })
 
         // Esta parte del codigo es para cuando no cargan las imagenes agregamos una por defecto
         movieImg.addEventListener('error', ()=> {
@@ -59,9 +79,30 @@ function createMovies(movies, container,
                 'src',
                 'https://static.platzi.com/static/images/error/img404.png'
             )
+        });
+
+        // Este es el boton generico que servira para dar like a las peliculas y guardar en favoritos
+        const movieBtn = document.createElement('button')
+        movieBtn.classList.add('movie-btn');
+        // dejar boton seleccionado de me gusta
+        likedMoviesList()[movie.id] && movieBtn.classList.add('movie-btn--liked')
+
+        // movieBtn.innerHTML = "sdfdsfssgg"
+        movieBtn.addEventListener('click', () => {
+            movieBtn.classList.toggle('movie-btn--liked');
+            likeMovie(movie);
+            // console.log('Se agrego nuevo elemento al storage')
+            getLikedMovies();
         })
+
+
+           // se tiene que agregar esta linea para que el lazy loader este escuchando
+           if(lazyLoad){
+            lazyLoader.observe(movieImg)
+        }
         
         movieContainer.appendChild(movieImg);
+        movieContainer.appendChild(movieBtn);
         container.appendChild(movieContainer);
     });
 }
@@ -339,6 +380,27 @@ async function getRelatedMoviesId(id){
     const relatedMovies = data.results;
 
     createMovies(relatedMovies, relatedMoviesContainer);
+
+}
+
+function getLikedMovies (){
+    // console.log('Se agrego un nuevo favorito')
+    const likedMovies = likedMoviesList();
+
+    // convrtiendo el objeto en arreglo con solo los valores
+
+    const moviesArray = Object.values(likedMovies);
+    console.log(moviesArray)
+
+   //ordenamiento a > z
+    moviesArray.sort(function (a, b) {
+        if (a.original_title < b.original_title) {
+          return -1;
+        }
+       
+      });
+
+    createMovies(moviesArray, likedMociesListArticle, {lazyLoad : true, clean: true })
 
 }
 
